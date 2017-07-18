@@ -10,27 +10,53 @@ import XCTest
 @testable import CitiesListing
 
 class CitiesListingTests: XCTestCase {
-    
+    var searchFilters = ["a","al","as","El","'","?"]
+    var searchResults = [["Alexandria","Assiut","Aswan"],["Alexandria"],["Assiut","Aswan"],["El-Behira","El-Minya"],[],[]]
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        CitiesManager.sharedInstance.citiesArray = ["Alexandria","Assiut","Aswan","Cairo","Damnhour","El-Behira","El-Minya"]
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-    
-    func testExample() {
+
+    func testSearch() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+        var count = 0
+        for filter in searchFilters{
+            FilterManager.sharedInstance.filterCities(with: filter)
+            var resultCount = 0
+            let thisResults = searchResults[count]
+            for result in FilterManager.sharedInstance.filteredCitiesArray{
+                let thisResult = thisResults[resultCount]
+                
+                XCTAssertEqual(result as? String, thisResult, "incorrect search")
+
+                resultCount += 1
+            }
+            count += 1
         }
     }
+    
+    func testCurrentFilterCompliance() {
+        let newEntries = ["Ismaielia","El-Wady El-Gideed","Port Saied"]
+        let newFilteredArray = ["El-Behira","El-Minya","El-Wady El-Gideed"]
+        
+        FilterManager.sharedInstance.filterCities(with:"el")
+        for newEntry in newEntries{
+            FilterManager.sharedInstance.doesComplyToCurrentFilter(cityKey: newEntry)
+        }
+        var resultCount = 0
+        for result in FilterManager.sharedInstance.filteredCitiesArray{
+            XCTAssertEqual(result as? String, newFilteredArray[resultCount], "incorrect Filter")
+            resultCount+=1
+        }
+    }
+    
+   
     
 }

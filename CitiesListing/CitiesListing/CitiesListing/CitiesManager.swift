@@ -13,7 +13,22 @@ class CitiesManager: NSObject {
     var pageIndex = 1
     var citiesDictionary = NSMutableDictionary()
     var citiesArray = NSMutableArray()
+    
+    func getIndex(ofKey:String)->Int{
+        let newIndex = self.citiesArray.index(of: ofKey , inSortedRange: NSMakeRange(0, self.citiesArray.count), options: .insertionIndex, usingComparator:{ (name1, name2) -> ComparisonResult in
+            let cityName1 = name1 as! String
+            let cityName2 = name2 as! String
+            let cityName1Lowered = cityName1.lowercased()
+            let cityName2Lowered = cityName2.lowercased()
 
+            if(cityName1Lowered > cityName2Lowered){
+                return ComparisonResult.orderedDescending
+            }else{
+                return ComparisonResult.orderedAscending
+            }
+        })
+        return newIndex
+    }
     func getMoreCities(completion:@escaping ([IndexPath])->Void){
         let citiesService = WSGetCities()
         citiesService.getCitiesWith(page: pageIndex) { (cities: [[String : AnyObject]]) in
@@ -27,25 +42,16 @@ class CitiesManager: NSObject {
                 cityObj.location.long = city["coord"]?["lon"] as! String?
                 cityObj.location.lat = city["coord"]?["lat"] as! String?
                 self.citiesDictionary.setValue(cityObj, forKey: cityObj.name!)
-                let newIndex = self.citiesArray.index(of: cityObj.name ?? "", inSortedRange: NSMakeRange(0, self.citiesArray.count), options: .insertionIndex, usingComparator:{ (name1, name2) -> ComparisonResult in
-                    let cityName1 = name1 as! String
-                    let cityName2 = name2 as! String
-                    if(cityName1 > cityName2){
-                        return ComparisonResult.orderedDescending
-                    }else{
-                        return ComparisonResult.orderedAscending
-                    }
-                })
-                
+                let newIndex = self.getIndex(ofKey: cityObj.name!)
                 self.citiesArray.insert(cityObj.name ?? "", at: newIndex)
-                FilterManager.sharedInstance.compliesToFilter(cityKey: cityObj.name!)
+                FilterManager.sharedInstance.doesComplyToCurrentFilter(cityKey: cityObj.name!)
             }
             
             
             completion(FilterManager.sharedInstance.setNewIndexPathes())
             
         }
-    
+        
     }
-
+    
 }

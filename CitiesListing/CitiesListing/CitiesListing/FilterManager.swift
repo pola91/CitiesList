@@ -13,15 +13,17 @@ class FilterManager: NSObject {
     var filteredCitiesArray = NSMutableArray()
     var filterKey = ""
     var citiesNewlyInserted = NSMutableArray()
+    
     func filterCities(with:String){
         filterKey = with
         filteredCitiesArray = NSMutableArray()
         citiesNewlyInserted = NSMutableArray()
+        
         if( with.characters.count == 0){
             var count = 0
             for city in CitiesManager.sharedInstance.citiesArray{
-                citiesNewlyInserted.add("f")
                 filteredCitiesArray.add(city)
+                citiesNewlyInserted.add("f")
                 count += 1
             }
         }else{
@@ -34,10 +36,7 @@ class FilterManager: NSObject {
                 if (cityKeyLowerCases.hasPrefix(withLowerCases)) {
                     filteredCitiesArray.add(cityKey)
                     citiesNewlyInserted.add("f")
-
                 }
-                
-                
             }
         }
     }
@@ -53,13 +52,14 @@ class FilterManager: NSObject {
         }
         return count
     }
-    func compliesToFilter(cityKey:String){
+    
+    func doesComplyToCurrentFilter(cityKey:String){
         var doesComply = false
-        if(filterKey.characters.count == 0){
-            
-            doesComply = true
         
+        if(filterKey.characters.count == 0){
+            doesComply = true
         }
+        
         let withLowerCases = filterKey.lowercased()
         let cityKeyLowerCases = cityKey.lowercased()
         if (cityKeyLowerCases.hasPrefix(withLowerCases)) {
@@ -69,11 +69,15 @@ class FilterManager: NSObject {
             let newIndex = self.filteredCitiesArray.index(of: cityKey , inSortedRange: NSMakeRange(0, self.filteredCitiesArray.count), options: .insertionIndex, usingComparator:{ (name1, name2) -> ComparisonResult in
                 let cityName1 = name1 as! String
                 let cityName2 = name2 as! String
-                if(cityName1 > cityName2){
+                let cityName1Lowered = cityName1.lowercased()
+                let cityName2Lowered = cityName2.lowercased()
+                
+                if(cityName1Lowered > cityName2Lowered){
                     return ComparisonResult.orderedDescending
                 }else{
                     return ComparisonResult.orderedAscending
                 }
+
             })
             
             filteredCitiesArray.insert(cityKey , at: newIndex)
@@ -81,6 +85,8 @@ class FilterManager: NSObject {
 
         }
     }
+    
+    
     func setNewIndexPathes()->[IndexPath]{
         var counter = 0
         var indexPathes = [IndexPath]()
